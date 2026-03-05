@@ -19,11 +19,36 @@ import { useCartStore } from "@/stores";
 import { useMounted } from "@/hooks";
 import { formatPrice } from "@/lib/format";
 
+// Compute cart summary from items (avoids returning new objects in selectors)
+function computeSummary(items: { price: number; quantity: number }[]) {
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const estimatedShipping = subtotal >= 75 ? 0 : 9.99;
+  const estimatedTax = subtotal * 0.08;
+  const total = subtotal + estimatedShipping + estimatedTax;
+
+  return {
+    subtotal: Math.round(subtotal * 100) / 100,
+    itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+    estimatedTax: Math.round(estimatedTax * 100) / 100,
+    estimatedShipping: Math.round(estimatedShipping * 100) / 100,
+    total: Math.round(total * 100) / 100,
+  };
+}
+
 export function CartDrawer() {
   const mounted = useMounted();
-  const { items, isOpen, closeCart, removeItem, updateQuantity, clearCart } =
-    useCartStore();
-  const summary = useCartStore((state) => state.getSummary());
+  const items = useCartStore((state) => state.items);
+  const isOpen = useCartStore((state) => state.isOpen);
+  const closeCart = useCartStore((state) => state.closeCart);
+  const removeItem = useCartStore((state) => state.removeItem);
+  const updateQuantity = useCartStore((state) => state.updateQuantity);
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  // Compute summary inline instead of using store method in selector
+  const summary = computeSummary(items);
 
   // Don't render until client-side hydration is complete
   if (!mounted) return null;

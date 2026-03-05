@@ -26,9 +26,12 @@ const NAV_LINKS = [
 
 export function Header() {
   const mounted = useMounted();
-  const itemCount = useCartStore((state) => state.getItemCount());
+  const items = useCartStore((state) => state.items);
   const openCart = useCartStore((state) => state.openCart);
   const toggleMobileMenu = useUIStore((state) => state.toggleMobileMenu);
+
+  // Compute count from items directly (avoid calling store methods in selectors)
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   // Use 0 during SSR to prevent hydration mismatch from Zustand persist
   const displayCount = mounted ? itemCount : 0;
