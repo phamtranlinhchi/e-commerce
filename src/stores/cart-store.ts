@@ -8,8 +8,15 @@
 // =============================================================================
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 import type { CartItem, CartSummary } from "@/types";
+
+// No-op storage for SSR environments where localStorage is unavailable
+const noopStorage: StateStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+};
 
 // Tax rate placeholder - will be dynamic in production
 const ESTIMATED_TAX_RATE = 0.08;
@@ -148,7 +155,10 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "ecommerce-cart",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined" ? window.localStorage : noopStorage
+      ),
+      skipHydration: true,
       // Only persist items, not UI state like isOpen
       partialize: (state) => ({ items: state.items }),
     }
