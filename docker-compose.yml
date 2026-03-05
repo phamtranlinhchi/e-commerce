@@ -3,7 +3,7 @@
 # =============================================================================
 # Services:
 #   - db:  PostgreSQL 16 database
-#   - app: Next.js application (standalone build)
+#   - app: Next.js application (runs migrations at startup)
 # =============================================================================
 # Usage:
 #   docker compose up -d            # Start all services
@@ -31,18 +31,6 @@ services:
       timeout: 5s
       retries: 5
 
-  migrate:
-    build:
-      context: .
-      target: builder
-    container_name: ecommerce-migrate
-    entrypoint: ["npx", "prisma", "migrate", "deploy"]
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/ecommerce?schema=public
-    depends_on:
-      db:
-        condition: service_healthy
-
   app:
     build: .
     container_name: ecommerce-app
@@ -56,8 +44,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      migrate:
-        condition: service_completed_successfully
 
 volumes:
   postgres_data:
