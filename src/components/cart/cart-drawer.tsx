@@ -6,7 +6,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -16,12 +16,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/stores";
+import { useMounted } from "@/hooks";
 import { formatPrice } from "@/lib/format";
 
 export function CartDrawer() {
+  const mounted = useMounted();
   const { items, isOpen, closeCart, removeItem, updateQuantity, clearCart } =
     useCartStore();
   const summary = useCartStore((state) => state.getSummary());
+
+  // Don't render until client-side hydration is complete
+  if (!mounted) return null;
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
@@ -70,7 +75,7 @@ export function CartDrawer() {
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-3">
                     {/* Item image */}
-                    <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-neutral-100">
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
                       {item.image ? (
                         <Image
                           src={item.image.url}

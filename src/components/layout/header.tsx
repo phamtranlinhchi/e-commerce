@@ -11,11 +11,11 @@ import {
   User,
   Menu,
   Heart,
-  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCartStore, useUIStore } from "@/stores";
+import { useMounted } from "@/hooks";
 import { SITE_CONFIG } from "@/lib/constants";
 
 const NAV_LINKS = [
@@ -25,9 +25,13 @@ const NAV_LINKS = [
 ] as const;
 
 export function Header() {
+  const mounted = useMounted();
   const itemCount = useCartStore((state) => state.getItemCount());
   const openCart = useCartStore((state) => state.openCart);
   const toggleMobileMenu = useUIStore((state) => state.toggleMobileMenu);
+
+  // Use 0 during SSR to prevent hydration mismatch from Zustand persist
+  const displayCount = mounted ? itemCount : 0;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md supports-[backdrop-filter]:bg-white/80">
@@ -94,12 +98,12 @@ export function Header() {
             size="icon"
             className="relative"
             onClick={openCart}
-            aria-label={`Shopping cart with ${itemCount} items`}
+            aria-label={`Shopping cart with ${displayCount} items`}
           >
             <ShoppingCart className="h-5 w-5" />
-            {itemCount > 0 && (
+            {displayCount > 0 && (
               <Badge className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 p-0 text-[10px] font-bold text-white hover:bg-neutral-900">
-                {itemCount > 99 ? "99+" : itemCount}
+                {displayCount > 99 ? "99+" : displayCount}
               </Badge>
             )}
           </Button>
