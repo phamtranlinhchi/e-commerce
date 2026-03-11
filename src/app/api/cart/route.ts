@@ -50,39 +50,49 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { productId, variantId = null, quantity = 1 } = await request.json();
+    const { productId, variantId, quantity = 1 } = await request.json();
 
     if (!productId || quantity < 1) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    // Upsert: add or increment quantity
-    const item = await prisma.cartItem.upsert({
+    const include = {
+      product: {
+        select: { id: true, name: true, slug: true, basePrice: true, images: true },
+      },
+      variant: {
+        select: { id: true, name: true, price: true, stock: true, attributes: true },
+      },
+    };
+
+    // Find existing cart item (handle null variantId separately since Prisma
+    // composite unique doesn't support null in upsert where clause)
+    const existing = await prisma.cartItem.findFirst({
       where: {
-        userId_productId_variantId: {
-          userId: session.user.id,
-          productId,
-          variantId,
-        },
-      },
-      update: {
-        quantity: { increment: quantity },
-      },
-      create: {
         userId: session.user.id,
         productId,
-        variantId,
-        quantity,
-      },
-      include: {
-        product: {
-          select: { id: true, name: true, slug: true, basePrice: true, images: true },
-        },
-        variant: {
-          select: { id: true, name: true, price: true, stock: true, attributes: true },
-        },
+        variantId: variantId ?? null,
       },
     });
+
+    let item;
+    if (existing) {
+      item = await prisma.cartItem.update({
+        where: { id: existing.id },
+        data: { quantity: { increment: quantity } },
+        include,
+      });
+    } else {
+      item = await prisma.cartItem.create({
+        data: {
+          userId: session.user.id,
+          productId,
+          variantId: variantId ?? null,
+          quantity,
+        },
+        include,
+      });
+    }
 
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
