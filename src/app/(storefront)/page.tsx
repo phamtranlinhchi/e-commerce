@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { ArrowRight, Truck, Shield, RefreshCw, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FeaturedProducts } from "@/components/product/featured-products";
 import { SITE_CONFIG } from "@/lib/constants";
 
 const VALUE_PROPS = [
@@ -58,15 +59,15 @@ export default function HomePage() {
               className="bg-white text-neutral-900 hover:bg-neutral-100 px-8"
               asChild
             >
-              <Link href="/products">
+              <Link href="/products" className="group/btn">
                 Shop Now
-                <ArrowRight className="ml-2 h-4 w-4" />
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
               </Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 px-8"
+              className="border-white/60 text-neutral-900 hover:bg-white/20 hover:border-white px-8"
               asChild
             >
               <Link href="/categories">Browse Categories</Link>
@@ -115,15 +116,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Placeholder grid - will be replaced with ProductGrid + data in Phase 2 */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square animate-pulse rounded-xl bg-neutral-100"
-              />
-            ))}
-          </div>
+          <FeaturedProducts />
         </div>
       </section>
 
