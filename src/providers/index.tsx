@@ -10,23 +10,33 @@ import { QueryProvider } from "./query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { CartDrawer } from "@/components/cart";
 import { useCartStore } from "@/stores/cart-store";
+import { useCartSync } from "@/hooks/use-cart-sync";
 
 interface ProvidersProps {
   children: React.ReactNode;
 }
 
-export function Providers({ children }: ProvidersProps) {
+function CartSyncProvider({ children }: { children: React.ReactNode }) {
   // Trigger Zustand persist rehydration once at the app level
   useEffect(() => {
     useCartStore.persist.rehydrate();
   }, []);
 
+  // Sync cart with server for authenticated users
+  useCartSync();
+
+  return <>{children}</>;
+}
+
+export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <QueryProvider>
-        {children}
-        <CartDrawer />
-        <Toaster position="bottom-right" richColors />
+        <CartSyncProvider>
+          {children}
+          <CartDrawer />
+          <Toaster position="bottom-right" richColors />
+        </CartSyncProvider>
       </QueryProvider>
     </SessionProvider>
   );
