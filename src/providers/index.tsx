@@ -5,6 +5,7 @@
 // =============================================================================
 
 import { useEffect } from "react";
+import { SessionProvider } from "next-auth/react";
 import { QueryProvider } from "./query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { CartDrawer } from "@/components/cart";
@@ -21,10 +22,12 @@ export function Providers({ children }: ProvidersProps) {
   }, []);
 
   return (
-    <QueryProvider>
-      {children}
-      <CartDrawer />
-      <Toaster position="bottom-right" richColors />
-    </QueryProvider>
+    <SessionProvider>
+      <QueryProvider>
+        {children}
+        <CartDrawer />
+        <Toaster position="bottom-right" richColors />
+      </QueryProvider>
+    </SessionProvider>
   );
 }
