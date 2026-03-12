@@ -20,5 +20,9 @@ export async function GET() {
     getMonthlyRevenue(),
   ]);
 
-  return NextResponse.json({ stats, recentOrders, monthlyRevenue });
+  return NextResponse.json({ stats, recentOrders, monthlyRevenue }, {
+    headers: {
+      "Cache-Control": "private, no-cache",
+    },
+  });
 }
