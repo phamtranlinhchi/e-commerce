@@ -26,12 +26,8 @@ import {
 import { useCartStore, useUIStore } from "@/stores";
 import { useMounted, useAuth } from "@/hooks";
 import { SITE_CONFIG } from "@/lib/constants";
-
-const NAV_LINKS = [
-  { href: "/products", label: "Shop" },
-  { href: "/categories", label: "Categories" },
-  { href: "/products?featured=true", label: "Featured" },
-] as const;
+import { useTranslation } from "@/lib/i18n";
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Header() {
   const mounted = useMounted();
@@ -39,6 +35,13 @@ export function Header() {
   const items = useCartStore((state) => state.items);
   const openCart = useCartStore((state) => state.openCart);
   const toggleMobileMenu = useUIStore((state) => state.toggleMobileMenu);
+  const { t } = useTranslation();
+
+  const NAV_LINKS = [
+    { href: "/products", label: t("common.shop") },
+    { href: "/categories", label: t("common.categories") },
+    { href: "/products?featured=true", label: t("common.featured") },
+  ] as const;
 
   // Compute count from items directly (avoid calling store methods in selectors)
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -97,15 +100,17 @@ export function Header() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" aria-label="Search products">
+          <Button variant="ghost" size="icon" aria-label={t("common.search")}>
             <Search className="h-5 w-5" />
           </Button>
+
+          <LanguageSwitcher />
 
           <Button
             variant="ghost"
             size="icon"
             className="hidden sm:inline-flex"
-            aria-label="Wishlist"
+            aria-label={t("common.wishlist")}
           >
             <Heart className="h-5 w-5" />
           </Button>
@@ -135,28 +140,28 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/account">
                     <User className="mr-2 h-4 w-4" />
-                    My Account
+                    {t("common.myAccount")}
                   </Link>
                 </DropdownMenuItem>
                 {user.role === "ADMIN" && (
                   <DropdownMenuItem asChild>
-                    <Link href="/admin">Admin Dashboard</Link>
+                    <Link href="/admin">{t("admin.dashboard")}</Link>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
+                  {t("common.signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : !isLoading && mounted ? (
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/login">Sign in</Link>
+                <Link href="/login">{t("common.signIn")}</Link>
               </Button>
               <Button size="sm" asChild className="hidden sm:inline-flex">
-                <Link href="/register">Sign up</Link>
+                <Link href="/register">{t("common.signUp")}</Link>
               </Button>
             </div>
           ) : (

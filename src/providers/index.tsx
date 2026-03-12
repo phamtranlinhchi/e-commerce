@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { CartDrawer } from "@/components/cart";
 import { useCartStore } from "@/stores/cart-store";
 import { useCartSync } from "@/hooks/use-cart-sync";
+import { LanguageProvider } from "@/lib/i18n";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -32,11 +33,13 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <QueryProvider>
-        <CartSyncProvider>
-          {children}
-          <CartDrawer />
-          <Toaster position="bottom-right" richColors />
-        </CartSyncProvider>
+        <LanguageProvider>
+          <CartSyncProvider>
+            {children}
+            <CartDrawer />
+            <Toaster position="bottom-right" richColors />
+          </CartSyncProvider>
+        </LanguageProvider>
       </QueryProvider>
     </SessionProvider>
   );
